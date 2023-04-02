@@ -1,1 +1,83 @@
-test
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>WebRTC Voice Call (Manual Signaling)</title>
+</head>
+
+<body>
+    <h1>WebRTC Voice Call (Manual Signaling)</h1>
+    <button id="startButton">Start Call</button>
+    <button id="answerButton">Answer Call</button>
+    <audio id="remoteAudio" controls autoplay></audio>
+    <br>
+    <textarea id="signalInput" placeholder="Paste signaling JSON here" rows="5" cols="60"></textarea>
+    <button id="signalButton">Submit Signal</button>
+    <script>
+        let peerConnection;
+        const configuration = { 'iceServers': [{ 'urls': 'stun:stun.l.google.com:19302' }] };
+
+        document.getElementById('startButton').addEventListener('click', async () => {
+            try {
+                peerConnection = new RTCPeerConnection(configuration);
+                peerConnection.onicecandidate = (event) => {
+                    if (event.candidate) {
+                        console.log('ICE candidate:', JSON.stringify(event.candidate));
+                    }
+                };
+                peerConnection.ontrack = (event) => {
+                    const remoteAudio = document.getElementById('remoteAudio');
+                    remoteAudio.srcObject = event.streams[0];
+                };
+
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                stream.getTracks().forEach(track => peerConnection.addTrack(track, stream));
+
+                const offer = await peerConnection.createOffer();
+                await peerConnection.setLocalDescription(offer);
+                console.log('Offer:', JSON.stringify(offer));
+            } catch (error) {
+                console.error('Error starting WebRTC call:', error);
+            }
+        });
+
+        document.getElementById('answerButton').addEventListener('click', async () => {
+            try {
+                peerConnection = new RTCPeerConnection(configuration);
+                peerConnection.onicecandidate = (event) => {
+                    if (event.candidate) {
+                        console.log('ICE candidate:', JSON.stringify(event.candidate));
+                    }
+                };
+                peerConnection.ontrack = (event) => {
+                    const remoteAudio = document.getElementById('remoteAudio');
+                    remoteAudio.srcObject = event.streams[0];
+                };
+            } catch (error) {
+                console.error('Error answering WebRTC call:', error);
+            }
+        });
+
+        document.getElementById('signalButton').addEventListener('click', async () => {
+            try {
+                const signalInput = document.getElementById('signalInput');
+                const signalData = JSON.parse(signalInput.value);
+
+                if (signalData.type === 'offer') {
+                    await peerConnection.setRemoteDescription(signalData);
+                    const answer = await peerConnection.createAnswer();
+                    await peerConnection.setLocalDescription(answer);
+                    console.log('Answer:', JSON.stringify(answer));
+                } else if (signalData.type === 'answer') {
+                    await peerConnection.setRemoteDescription(signalData);
+                } else if (signalData.candidate) {
+                    await peerConnection.addIceCandidate(signalData);
+                }
+            } catch (error) {
+                console.error('Error processing signaling data:', error);
+            }
+        });
+    </script>
+</body>
+
+</html>
