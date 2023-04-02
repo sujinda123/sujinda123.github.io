@@ -27,7 +27,7 @@
                 peerConnection = new RTCPeerConnection(configuration);
                 peerConnection.onicecandidate = (event) => {
                     if (event.candidate) {
-                        text_candidate.innerText = "Offer JSON Candidate : " + JSON.stringify(event.candidate));
+                        text_candidate.innerText = "Offer JSON Candidate : " + JSON.stringify(event.candidate);
                         console.log('ICE candidate:', JSON.stringify(event.candidate));
                     }
                 };
@@ -42,7 +42,7 @@
                 const offer = await peerConnection.createOffer();
                 await peerConnection.setLocalDescription(offer);
                 console.log('Offer:', JSON.stringify(offer));
-                text_offer.innerText = "Offer JSON : " + JSON.stringify(event.candidate));
+                text_offer.innerText = "Offer JSON : " + JSON.stringify(offer);
             } catch (error) {
                 console.error('Error starting WebRTC call:', error);
             }
@@ -54,7 +54,7 @@
                 peerConnection.onicecandidate = (event) => {
                     if (event.candidate) {
                         console.log('ICE candidate:', JSON.stringify(event.candidate));
-                        text_candidate.innerText = "Answer JSON Candidate : " + JSON.stringify(event.candidate));
+                        text_candidate.innerText = "Answer JSON Candidate : " + JSON.stringify(event.candidate);
                     }
                 };
                 peerConnection.ontrack = (event) => {
@@ -76,7 +76,7 @@
                     const answer = await peerConnection.createAnswer();
                     await peerConnection.setLocalDescription(answer);
                     console.log('Answer:', JSON.stringify(answer));
-                    text_offer.innerText = "Answer JSON : " + JSON.stringify(event.candidate));
+                    text_offer.innerText = "Answer JSON : " + JSON.stringify(answer);
                 } else if (signalData.type === 'answer') {
                     await peerConnection.setRemoteDescription(signalData);
                 } else if (signalData.candidate) {
